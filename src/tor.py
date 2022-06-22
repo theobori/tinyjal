@@ -1,10 +1,11 @@
 """tor module"""
 
+import requests
+
+from time import sleep
 from fake_useragent import UserAgent
 from stem import Signal
 from stem.control import Controller
-
-import requests
 
 class Tor:
     """
@@ -25,6 +26,17 @@ class Tor:
         with Controller.from_port(port = 9051) as controller:
             controller.authenticate(password="sh33sh")
             controller.signal(Signal.NEWNYM)
+
+            print("Tor new circuit")
+
+    def daemon_circuit(n: float):
+        """
+            New circuit every n seconds
+        """
+
+        while 1:
+            Tor.new_circuit()
+            sleep(n)
 
     def request(_type: callable, *args, **kwargs) -> object:
         """
