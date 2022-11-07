@@ -15,6 +15,7 @@ def check_args(ac: int, av: List[str]):
 
     if ac != 2:
         raise JALError("Need only two arguments")
+
 def main():
 
     av = argv[1:]
@@ -23,13 +24,16 @@ def main():
     try:
         check_args(ac, av)
 
-        circuit = Thread(target=Tor.daemon_circuit, args=(60 * 3,))
+        circuit = Thread(target=Tor.daemon_circuit, args=(60 * 10,))
+        circuit.setDaemon(True)
         circuit.start()
 
         jal = JAL(*av)
         jal.scrape()
     except JALError as error:
         print(error, file=stderr)
+    
+    exit()
 
 if __name__ == "__main__":
     main()

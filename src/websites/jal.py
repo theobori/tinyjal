@@ -1,8 +1,5 @@
 """jal module"""
 
-from concurrent.futures import thread
-from threading import Thread
-import requests
 import re
 import os
 
@@ -33,10 +30,8 @@ class JAL(Scrape):
 
         if len(name) == 0:
             return False
-
-        return size == "-" \
-            and date != "-" \
-            and name[-1] == "/"
+    
+        return size == "-" and date != "-" and name[-1] == "/"
 
     def is_file(self, name: str, size: str, date: str) -> bool:
         """
@@ -46,10 +41,20 @@ class JAL(Scrape):
         if len(name) == 0:
             return False
 
-        return size != "-" \
-            and date != "-" \
-            and name[-1] != "/"
+        return size != "-" and date != "-" and name[-1] != "/"
+
+    def download_file(self, url: str, path: str) -> bool:
+        """
+            Download a file
+        """
     
+        if os.path.exists(path):
+            print("[Cache]", path, sep="    ")
+            return False
+        
+        img = Tor.get_request(url)
+        self.save_as(img.content, path)
+        return True
 
     def scrape(self, url: str = None):
         """
@@ -74,16 +79,16 @@ class JAL(Scrape):
             except:
                 continue
 
-            file = url + "/" + name
+            file_url = url + "/" + name
 
             os.makedirs(self.localdir + endpoint_dir, exist_ok=True)
             if self.is_dir(name, size, date):
-                self.scrape(file)
+                self.scrape(file_url)
     
             if self.is_file(name, size, date):
-                img = Tor.get_request(file)
-                self.save_as(img.content, self.localdir + endpoint_dir + name)
-                print("[+]", endpoint_dir, name, size, sep="    ")
+                localpath = self.localdir + endpoint_dir + name
+                if self.download_file(file_url, localpath):
+                    print("[+]", endpoint_dir, name, size, sep="    ")
 
     def save_as(self, data: bytes, filepath: str):
         """
