@@ -21,6 +21,9 @@ class Tor:
         This class acts like a namespace for features
         that use the tor network
     """
+    
+    CONTROLLER_PORT = int(os.environ.get("CONTROLLER_PORT")) or 9051
+    CONTROLLER_PASSWORD = os.environ.get("CONTROLLER_PASSWORD")
 
     PROXIES = {
         "http": "socks5h://localhost:9050",
@@ -32,11 +35,11 @@ class Tor:
             Create a new circuit (new relays, exit and entry nodes)
         """
 
-        with Controller.from_port(port=9051) as controller:
-            controller.authenticate(password="p3p3g4")
+        with Controller.from_port(port=Tor.CONTROLLER_PORT) as controller:
+            controller.authenticate(password=Tor.CONTROLLER_PASSWORD)
             controller.signal(Signal.NEWNYM)
 
-            print("Tor new circuit")
+            print("[+] Tor new circuit")
 
     def daemon_circuit(n: float):
         """
